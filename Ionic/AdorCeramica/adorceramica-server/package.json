@@ -1,0 +1,22 @@
+{
+  "name": "adorceramica-server",
+  "version": "1.0.0",
+  "description": "adorceramica REST server",
+  "main": "index.js",
+  "scripts": {
+    "start": "backpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Purle-Kopacz Armin",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "backpack-core": "^0.8.4",
+    "koa": "^2.8.2",
+    "koa-bodyparser": "^4.2.1",
+    "koa-convert": "^1.2.0",
+    "koa-cors": "^0.0.16",
+    "koa-router": "^7.4.0",
+    "ws": "^7.1.2"
+  }
+}
