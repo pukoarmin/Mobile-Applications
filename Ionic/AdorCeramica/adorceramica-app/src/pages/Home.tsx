@@ -1,20 +1,27 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { RouteComponentProps } from 'react-router';
+import { GenericHeader } from '../components/header/generic-header';
+import { StandardMenu } from '../components/menu/standard-menu';
 import './Home.css';
 
-const Home: React.FC = () => {
+const Home: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Blank</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <GenericHeader/>
       <IonContent fullscreen>
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Blank</IonTitle>
+            <IonTitle size="large">ADOR Ceramica</IonTitle>
           </IonToolbar>
         </IonHeader>
+
+        <IonButton
+          onClick={(event) => {
+            event.preventDefault();
+            history.push("/items");
+          }}>
+          Items
+          </IonButton>
       </IonContent>
     </IonPage>
   );

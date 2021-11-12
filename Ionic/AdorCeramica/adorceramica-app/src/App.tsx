@@ -2,7 +2,6 @@ import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ItemEdit, ItemList } from './components/generic-item';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -22,17 +21,26 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import { ItemProvider } from './components/generic-item/ItemProvider';
+
+/* Components */
+import { ItemEdit, ItemList } from './components/payload/generic-item';
+import { ItemProvider } from './components/payload/generic-item/ItemProvider';
+
+/* Pages */
+import Home from './pages/Home'
+import { StandardMenu } from './components/menu/standard-menu';
 
 const App: React.FC = () => (
   <IonApp>
     <ItemProvider>
       <IonReactRouter>
-        <IonRouterOutlet>
+        <StandardMenu/>
+        <IonRouterOutlet id="main">
+          <Route path="/" component={Home} exact={true} />
           <Route path="/items" component={ItemList} exact={true} />
           <Route path="/item" component={ItemEdit} exact={true} />
           <Route path="/item/:id" component={ItemEdit} exact={true} />
-          <Route exact path="/" render={() => <Redirect to="/items" />} />
+          <Route exact path="/home" render={() => <Redirect to="/" />} />
         </IonRouterOutlet>
       </IonReactRouter>
     </ItemProvider>
