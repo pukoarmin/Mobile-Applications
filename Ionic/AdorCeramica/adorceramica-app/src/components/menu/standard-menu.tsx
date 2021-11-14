@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonRouterOutlet, IonLabel, IonMenuToggle, IonFooter, IonButton, IonBadge, IonText } from '@ionic/react';
 import { useNetworkStatus } from '../../core/hooks/useNetworkStatus';
 import "./standard-menu.css";
-import { useHistory } from 'react-router';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Redirect } from 'react-router-dom';
+import { AuthContext, AuthProvider, AuthState } from '../authentication';
+import { LocalStorage } from '../../core/local-storage/LocalStorage';
 
 export const StandardMenuWrapper: React.FC = () => {
     return (
@@ -15,6 +16,7 @@ export const StandardMenuWrapper: React.FC = () => {
 
 export const StandardMenu: React.FC = () => {
     const { networkStatus } = useNetworkStatus();
+    const { isAuthenticated, logout } = useContext<AuthState>(AuthContext);
 
     return(
       <><IonMenu side="start" contentId="main" type="overlay">
@@ -42,11 +44,18 @@ export const StandardMenu: React.FC = () => {
 
             <IonFooter>
                 <IonMenuToggle autoHide={true}>
-                    {//TODO: Show LOGIN button if not logged in. Show LOGOUT button if logged in
-                    }
-                    <IonButton routerLink={"/"} color="light" expand="full">
-                        <IonLabel>Logout</IonLabel>
-                    </IonButton>
+                    {isAuthenticated && (
+                        <IonButton color="light" expand="full" onClick={logout}>
+                            <IonLabel>Logout</IonLabel>
+                            <Redirect to={{ pathname: '/home' }}/>
+                        </IonButton>
+                    )}
+                    {!isAuthenticated && (
+                        <IonButton routerLink={"/login"} color="light" expand="full">
+                            <IonLabel>Login</IonLabel>
+                        </IonButton>
+                    )}
+                    
                 </IonMenuToggle>
                 
                 <IonItem class="network-status-item">

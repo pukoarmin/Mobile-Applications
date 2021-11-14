@@ -1,7 +1,6 @@
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { RouteComponentProps } from 'react-router';
 import { GenericHeader } from '../components/header/generic-header';
-import { StandardMenu } from '../components/menu/standard-menu';
 import './Home.css';
 
 const Home: React.FC<RouteComponentProps> = ({ history }) => {
