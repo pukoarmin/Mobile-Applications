@@ -15,7 +15,6 @@ import { add } from 'ionicons/icons';
 import Item from './Item';
 import { getLogger } from '../../../core';
 import { ItemContext } from './ItemProvider';
-import { GenericHeader } from '../../header/generic-header';
 
 const log = getLogger('ItemList');
 
@@ -24,14 +23,17 @@ const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
   log('render');
   return (
     <IonPage>
-      <GenericHeader />
-      
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>Item List</IonTitle>
+        </IonToolbar>
+      </IonHeader>
       <IonContent>
-        <IonLoading isOpen={fetching} message="Fetching items" />
+        <IonLoading isOpen={fetching} message="Fetching items"/>
         {items && (
           <IonList>
-            {items.map(({ id, text}) =>
-              <Item key={id} id={id} text={text} onEdit={id => history.push(`/item/${id}`)} />)}
+            {items.map(({ id, text }) =>
+              <Item key={id} id={id} text={text} onEdit={id => history.push(`/item/${id}`)}/>)}
           </IonList>
         )}
         {fetchingError && (
@@ -39,7 +41,7 @@ const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
         )}
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
           <IonFabButton onClick={() => history.push('/item')}>
-            <IonIcon icon={add} />
+            <IonIcon icon={add}/>
           </IonFabButton>
         </IonFab>
       </IonContent>

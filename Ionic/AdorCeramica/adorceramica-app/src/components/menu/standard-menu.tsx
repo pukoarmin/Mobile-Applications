@@ -1,11 +1,20 @@
 import React from 'react';
 import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonRouterOutlet, IonLabel, IonMenuToggle, IonFooter, IonButton, IonBadge, IonText } from '@ionic/react';
-import { CurrentNetworkStatus } from '../../core/hooks/useNetworkStatus';
+import { useNetworkStatus } from '../../core/hooks/useNetworkStatus';
 import "./standard-menu.css";
+import { useHistory } from 'react-router';
+import { BrowserRouter } from 'react-router-dom';
 
+export const StandardMenuWrapper: React.FC = () => {
+    return (
+        <BrowserRouter>
+            <StandardMenu/>
+        </BrowserRouter>
+    )
+} 
 
 export const StandardMenu: React.FC = () => {
-    const { networkStatus } = CurrentNetworkStatus();
+    const { networkStatus } = useNetworkStatus();
 
     return(
       <><IonMenu side="start" contentId="main" type="overlay">
@@ -18,7 +27,7 @@ export const StandardMenu: React.FC = () => {
             <IonContent>
                 <IonList>
                     <IonMenuToggle autoHide={true}>
-                        <IonButton routerLink={"/home"} color="light" expand="full">
+                        <IonButton color="light" expand="full" routerLink="/home">
                             <IonLabel>Home</IonLabel>
                         </IonButton>
                     </IonMenuToggle>
@@ -32,6 +41,14 @@ export const StandardMenu: React.FC = () => {
             </IonContent>
 
             <IonFooter>
+                <IonMenuToggle autoHide={true}>
+                    {//TODO: Show LOGIN button if not logged in. Show LOGOUT button if logged in
+                    }
+                    <IonButton routerLink={"/"} color="light" expand="full">
+                        <IonLabel>Logout</IonLabel>
+                    </IonButton>
+                </IonMenuToggle>
+                
                 <IonItem class="network-status-item">
                     <IonLabel>Status </IonLabel>
                     {networkStatus.connected && (

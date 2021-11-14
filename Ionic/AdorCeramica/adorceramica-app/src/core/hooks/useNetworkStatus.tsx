@@ -6,7 +6,7 @@ const initialState = {
   connectionType: 'unknown',
 }
 
-export const CurrentNetworkStatus = () => {
+export const useNetworkStatus = () => {
   const [networkStatus, setNetworkStatus] = useState(initialState)
   useEffect(() => {
     const handler = Network.addListener('networkStatusChange', handleNetworkStatusChange);
