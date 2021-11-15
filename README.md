@@ -15,9 +15,9 @@ App features:
 	- [x] After login, app stores the auth token in local storage
 	- [x] When app starts, the login page is not opened if the user is authenticated
 	- [x] App allows users to logout
- - [ ] 3. Link the resource instances to the authenticated user
-	- [ ] REST services return only the resources linked to the authenticated user
-	- [ ] Web socket notifications are sent only if the modified resources are linked to the authenticated user
+ - [x] 3. Link the resource instances to the authenticated user
+	- [x] REST services return only the resources linked to the authenticated user
+	- [x] Web socket notifications are sent only if the modified resources are linked to the authenticated user
  - [ ] 4. Online/offline behaviour
 	- [ ] In online mode, the app tries first to use the REST services when new items are created/updated
 	- [ ] In offline mode or if the REST calls fail, the app stores data locally
