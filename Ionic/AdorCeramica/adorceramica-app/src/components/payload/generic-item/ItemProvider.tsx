@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { getLogger } from '../../../core';
 import { ItemProps } from './ItemProps';
 import { createItem, getItems, newWebSocket, updateItem } from './itemApi';
-import { AuthContext } from '../../authentication/AuthenticationProvider';
+import { AuthContext } from '../../authentication';
 
 const log = getLogger('ItemProvider');
 
@@ -49,9 +49,16 @@ const reducer: (state: ItemsState, action: ActionProps) => ItemsState =
       case SAVE_ITEM_SUCCEEDED:
         const items = [...(state.items || [])];
         const item = payload.item;
-        const index = items.findIndex(it => it.id === item._id);
+        const index = items.findIndex(it => it._id === item._id);
         if (index === -1) {
-          items.splice(0, 0, item);
+          //The if is not a good fix. This is called twice
+          //First time when the item just arrived and does not yet have and ID
+          //Second time when it has an ID
+          //It should be called just once
+          if (item._id != undefined){
+            items.splice(0, 0, item);
+            //console.log(item);
+          }
         } else {
           items[index] = item;
         }
@@ -114,7 +121,7 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
     try {
       log('saveItem started');
       dispatch({ type: SAVE_ITEM_STARTED });
-      const savedItem = await (item.id ? updateItem(token, item) : createItem(token, item));
+      const savedItem = await (item._id ? updateItem(token, item) : createItem(token, item));
       log('saveItem succeeded');
       dispatch({ type: SAVE_ITEM_SUCCEEDED, payload: { item: savedItem } });
     } catch (error) {

@@ -25,10 +25,10 @@ export class LocalStorage {
 
     storeItem = async (item: ItemProps) => {
         await Storage.set({
-            key: "item|" + item.id,
+            key: "item|" + item._id,
             value: JSON.stringify(item),
         });
-        console.log("[LOCAL STORAGE] - Stored Item: " + item.id);
+        console.log("[LOCAL STORAGE] - Stored Item: " + item._id);
     };
 
 }

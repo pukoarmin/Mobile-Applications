@@ -51,7 +51,7 @@ export const StandardMenu: React.FC = () => {
                         </IonButton>
                     )}
                     {!isAuthenticated && (
-                        <IonButton routerLink={"/login"} color="light" expand="full">
+                        <IonButton routerLink={"/login"}color="light" expand="full">
                             <IonLabel>Login</IonLabel>
                         </IonButton>
                     )}
