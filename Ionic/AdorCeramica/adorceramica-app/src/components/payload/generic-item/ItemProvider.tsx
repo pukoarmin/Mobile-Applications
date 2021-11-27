@@ -1,9 +1,14 @@
-import React, { useCallback, useContext, useEffect, useReducer } from 'react';
+import React, { useCallback, useContext, useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { getLogger } from '../../../core';
 import { ItemProps } from './ItemProps';
-import { createItem, getItems, newWebSocket, updateItem } from './itemApi';
+import { createItem, getItems, newWebSocket, syncData, updateItem } from './itemApi';
 import { AuthContext } from '../../authentication';
+import { LocalStorage } from '../../../core/local-storage/LocalStorage';
+import { useNetworkStatus } from '../../../core/hooks/useNetworkStatus';
+import { render } from '@testing-library/react';
+import { Network } from '@capacitor/network';
+import { IonToast } from '@ionic/react';
 
 const log = getLogger('ItemProvider');
 
@@ -51,7 +56,7 @@ const reducer: (state: ItemsState, action: ActionProps) => ItemsState =
         const item = payload.item;
         const index = items.findIndex(it => it._id === item._id);
         if (index === -1) {
-          //The if is not a good fix. This is called twice
+          //FIXME: The if is not a good fix. This is called twice
           //First time when the item just arrived and does not yet have and ID
           //Second time when it has an ID
           //It should be called just once
@@ -61,6 +66,7 @@ const reducer: (state: ItemsState, action: ActionProps) => ItemsState =
           }
         } else {
           items[index] = item;
+          //console.log(item);
         }
         return { ...state, items, saving: false };
       case SAVE_ITEM_FAILED:
@@ -80,16 +86,62 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
   const { token } = useContext(AuthContext);
   const [state, dispatch] = useReducer(reducer, initialState);
   const { items, fetching, fetchingError, saving, savingError } = state;
+
+  const { networkStatus } = useNetworkStatus();
+  const [connectedNetworkStatus, setConnectedNetworkStatus] = useState<boolean>(false);
+  Network.getStatus().then(status => setConnectedNetworkStatus(status.connected));
+  const [savedOffline, setSavedOffline] = useState<boolean>(false);
+  useEffect(networkEffect, [token, setConnectedNetworkStatus]);
+
+  const [showServerCallErrorToast, setShowServerCallErrorToast] = useState(false);
+
+  let localStorage = new LocalStorage();
   useEffect(getItemsEffect, [token]);
   useEffect(wsEffect, [token]);
   const saveItem = useCallback<SaveItemFn>(saveItemCallback, [token]);
-  const value = { items, fetching, fetchingError, saving, savingError, saveItem };
+  const value = { 
+    items, 
+    fetching, 
+    fetchingError, 
+    saving, savingError, 
+    saveItem,
+    connectedNetworkStatus,
+    savedOffline
+  };
+  if (networkStatus.connected){
+    console.log("[BACKUP] -> Backup initialized", networkStatus.connected);
+      backupItemsLocally(items);
+  }
   log('returns');
   return (
     <ItemContext.Provider value={value}>
       {children}
+      <IonToast color="danger"
+        isOpen={showServerCallErrorToast}
+        onDidDismiss={() => setShowServerCallErrorToast(false)}
+        message="Could not connect to server"
+        position="bottom"
+        duration={2000}
+      />
     </ItemContext.Provider>
   );
+
+  function networkEffect() {
+    console.log("network effect");
+    let canceled = false;
+    Network.addListener('networkStatusChange', async (status) => {
+        if (canceled) return;
+        const connected = status.connected;
+        if (connected) {
+            console.log("networkEffect - SYNC data");
+            await syncData(token);
+        }
+        setConnectedNetworkStatus(status.connected);
+    });
+    return () => {
+        canceled = true;
+    }
+}
 
   function getItemsEffect() {
     let canceled = false;
@@ -108,25 +160,85 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
         const items = await getItems(token);
         log('fetchItems succeeded');
         if (!canceled) {
+          log(items);
           dispatch({ type: FETCH_ITEMS_SUCCEEDED, payload: { items } });
         }
       } catch (error) {
         log('fetchItems failed');
         dispatch({ type: FETCH_ITEMS_FAILED, payload: { error } });
+        try{
+          dispatch({ type: FETCH_ITEMS_STARTED });
+          const items = await getBackupItems();
+          log('fetchItems succeeded');
+          if (!canceled) {
+            log(items);
+            dispatch({ type: FETCH_ITEMS_SUCCEEDED, payload: { items } });
+            setShowServerCallErrorToast(true);
+          }
+          log("fetched items from local memory");
+        } catch (error){
+          dispatch({ type: FETCH_ITEMS_FAILED, payload: { error } });
+        }
       }
     }
   }
 
+  function backupItemsLocally(_items: ItemProps[] | undefined){
+    console.log("[ITEM PROVIDER] - Item backup started");
+    localStorage.backupItems(JSON.stringify(_items));
+    console.log("[ITEM PROVIDER] - Item backup completed");
+  }
+
+  async function getBackupItems(){
+    const storedItems = await localStorage.getBackupItems();
+    if (storedItems != null){
+      console.log("[ITEM PROVIDER] - Item loading backup started");
+      if (storedItems != ""){
+        const dataString = ((storedItems as unknown) as string);
+        let jsonObj = JSON.parse(JSON.parse(dataString));
+        let items: ItemProps[] = [];
+        for (var prop in jsonObj){
+          let item: ItemProps = {
+            _id: jsonObj[prop]['_id'],
+            text: jsonObj[prop]['text'],
+          };
+          items.push(item);
+        }
+        return items
+      }
+      else{
+        log("getBackupItems failed");
+      }
+    }
+      
+    console.log("[ITEM PROVIDER] - Item loading backup completed");
+  }
+
   async function saveItemCallback(item: ItemProps) {
     try {
-      log('saveItem started');
-      dispatch({ type: SAVE_ITEM_STARTED });
-      const savedItem = await (item._id ? updateItem(token, item) : createItem(token, item));
-      log('saveItem succeeded');
-      dispatch({ type: SAVE_ITEM_SUCCEEDED, payload: { item: savedItem } });
+      if (navigator.onLine) {
+        log('saveItem started');
+        dispatch({ type: SAVE_ITEM_STARTED });
+        const savedItem = await (item._id ? updateItem(token, item) : createItem(token, item));
+        log('saveItem succeeded');
+        dispatch({ type: SAVE_ITEM_SUCCEEDED, payload: { item: savedItem } });
+      }
+      else {
+        console.log('saveBook offline');
+        log('saveBook failed');
+        item._id = (item._id == undefined) ? ('_' + Math.random().toString(36).substr(2, 9)) : item._id;
+        localStorage.storeItem(item);
+        dispatch({type: SAVE_ITEM_SUCCEEDED, payload: {item : item}});
+        setSavedOffline(true);
+        setShowServerCallErrorToast(true);
+      }
+      
     } catch (error) {
       log('saveItem failed');
-      dispatch({ type: SAVE_ITEM_FAILED, payload: { error } });
+      item._id = (item._id == undefined) ? ('_' + Math.random().toString(36).substr(2, 9)) : item._id;
+      localStorage.storeItem(item);
+      dispatch({ type: SAVE_ITEM_SUCCEEDED, payload: { item: item } });
+      setShowServerCallErrorToast(true);
     }
   }
 

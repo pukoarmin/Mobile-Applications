@@ -14,11 +14,14 @@ export const useNetworkStatus = () => {
     let canceled = false;
     return () => {
       canceled = true;
-      handler.remove();
+      //FIXME: after using networkStatus in ItemProvider
+      //when refreshing the page, this causes error for some reason
+      //remove function does not exist
+      //handler.remove();
     }
 
     async function handleNetworkStatusChange(status: ConnectionStatus) {
-      console.log('[Network Status] -> Status change: ', status);
+      console.log('[NETWORK STATUS] -> Status change: ', status);
       if (!canceled) {
         setNetworkStatus(status);
       }

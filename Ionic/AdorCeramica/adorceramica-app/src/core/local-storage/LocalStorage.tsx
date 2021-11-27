@@ -25,10 +25,23 @@ export class LocalStorage {
 
     storeItem = async (item: ItemProps) => {
         await Storage.set({
-            key: "item|" + item._id,
+            key: item._id!,
             value: JSON.stringify(item),
         });
         console.log("[LOCAL STORAGE] - Stored Item: " + item._id);
     };
 
+    backupItems = async (items: string) => {
+        await Storage.set({
+            key: "items",
+            value: JSON.stringify(items),
+        });
+        console.log("[LOCAL STORAGE] - Backup Items: " + items);
+    };
+
+    async getBackupItems(): Promise<string | null> {
+        const { value } = await Storage.get({key: "items"});
+        console.log("[LOCAL STORAGE] - Retrieved Backup Items: " + value);
+        return value;
+    };
 }

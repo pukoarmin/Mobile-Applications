@@ -7,11 +7,11 @@ import { timingLogger, exceptionHandler, jwtConfig, initWss, verifyClient } from
 import { router as noteRouter } from './note';
 import { router as authRouter } from './auth';
 import jwt from 'koa-jwt';
-import cors from '@koa/cors';
 
 const app = new Koa();
 const server = http.createServer(app.callback());
 const wss = new WebSocket.Server({ server });
+const cors = require('@koa/cors')
 initWss(wss);
 
 app.use(cors());

@@ -5,6 +5,7 @@ import "./standard-menu.css";
 import { BrowserRouter, Redirect } from 'react-router-dom';
 import { AuthContext, AuthProvider, AuthState } from '../authentication';
 import { LocalStorage } from '../../core/local-storage/LocalStorage';
+import { syncData } from '../payload/generic-item/itemApi';
 
 export const StandardMenuWrapper: React.FC = () => {
     return (
@@ -16,7 +17,7 @@ export const StandardMenuWrapper: React.FC = () => {
 
 export const StandardMenu: React.FC = () => {
     const { networkStatus } = useNetworkStatus();
-    const { isAuthenticated, logout } = useContext<AuthState>(AuthContext);
+    const { token, isAuthenticated, logout } = useContext<AuthState>(AuthContext);
 
     return(
       <><IonMenu side="start" contentId="main" type="overlay">
@@ -43,6 +44,10 @@ export const StandardMenu: React.FC = () => {
             </IonContent>
 
             <IonFooter>
+                <IonMenuToggle autoHide={true}>
+                    <IonButton onClick={() => syncData(token)}>Sync</IonButton>
+                    
+                </IonMenuToggle>
                 <IonMenuToggle autoHide={true}>
                     {isAuthenticated && (
                         <IonButton color="light" expand="full" onClick={logout}>
