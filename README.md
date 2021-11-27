@@ -23,5 +23,8 @@ App features:
 	- [X] In offline mode or if the REST calls fail, the app stores data locally
 	- [X] Inform user about the items not sent to the server
  - [X] 5. When entering the online mode, the app automatically tries to send data to the server
- - [ ] 6. Use pagination
- - [ ] 7. Use search & filter
+ - [X] 6. Use pagination
+ - [X] 7. Use search & filter
+ 
+## Ionic 3
+
