@@ -201,6 +201,9 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
           let item: ItemProps = {
             _id: jsonObj[prop]['_id'],
             text: jsonObj[prop]['text'],
+            latitude: jsonObj[prop]['latitude'],
+            longitude: jsonObj[prop]['longitude'],
+            webViewPath: jsonObj[prop]['webViewPath']
           };
           items.push(item);
         }

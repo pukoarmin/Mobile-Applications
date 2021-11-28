@@ -103,8 +103,8 @@ const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
         <IonLoading isOpen={fetching} message="Fetching items"/>
         {visibleItems && (
           <IonList>
-            {visibleItems.map(({ _id, text }) =>
-              <Item key={_id} _id={_id} text={text} onEdit={id => history.push(`/item/${id}`)}/>)}
+            {visibleItems.map(({ _id, text, latitude, longitude, webViewPath }) =>
+              <Item key={_id} _id={_id} text={text} latitude={latitude} longitude={longitude} webViewPath={webViewPath} onEdit={id => history.push(`/item/${id}`)}/>)}
           </IonList>
         )}
 
