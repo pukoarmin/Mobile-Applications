@@ -27,4 +27,15 @@ App features:
  - [X] 7. Use search & filter
  
 ## Ionic 3
-
+App features:
+ - [x] 1. Use camera
+	- [x] In the context of the edit page allow user to take a photo
+	- [x] Show photo when the resource is shown (in list/view/edit pages)
+	- [x] Save photo on the device
+	- [x] Upload photo
+ - [x] 2. Use maps
+	- [x] In the context of the edit page allow user to open a map in order to select a location of that resource
+	- [x] Later, allow user to open a map in order to locate the resource
+ - [x] 3. Use animations
+	- [x] Animate some components
+	- [x] Override existing component animations
